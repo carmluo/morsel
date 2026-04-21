@@ -1,17 +1,17 @@
 "use client";
 
 import { useRef, useCallback } from "react";
-import { Camera, ImageIcon } from "lucide-react";
+import { ImageIcon } from "lucide-react";
 
 interface PhotoInputProps {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   onLoad: (url: string, photoCanvas: HTMLCanvasElement) => void;
+  hasPhoto?: boolean;
 }
 
-export default function PhotoInput({ canvasRef, onLoad }: PhotoInputProps) {
+export default function PhotoInput({ canvasRef, onLoad, hasPhoto }: PhotoInputProps) {
   const photoCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
-  const libraryInputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,41 +51,22 @@ export default function PhotoInput({ canvasRef, onLoad }: PhotoInputProps) {
   );
 
   return (
-    <div className="flex gap-2">
-      {/* Take photo — opens camera directly */}
+    <>
       <button
         type="button"
-        onClick={() => cameraInputRef.current?.click()}
+        onClick={() => inputRef.current?.click()}
         className="inline-flex items-center gap-2 bg-surface border border-border text-text text-sm font-medium px-4 py-2 rounded-xl hover:border-muted transition-colors min-h-[40px]"
       >
-        <Camera size={16} />
-        <span>Camera</span>
+        <ImageIcon size={15} />
+        {hasPhoto ? "Change photo" : "Add photo"}
       </button>
       <input
-        ref={cameraInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="sr-only"
-        onChange={handleFileChange}
-      />
-
-      {/* Upload from library */}
-      <button
-        type="button"
-        onClick={() => libraryInputRef.current?.click()}
-        className="inline-flex items-center gap-2 bg-surface border border-border text-text text-sm font-medium px-4 py-2 rounded-xl hover:border-muted transition-colors min-h-[40px]"
-      >
-        <ImageIcon size={16} />
-        <span>Upload</span>
-      </button>
-      <input
-        ref={libraryInputRef}
+        ref={inputRef}
         type="file"
         accept="image/*"
         className="sr-only"
         onChange={handleFileChange}
       />
-    </div>
+    </>
   );
 }

@@ -24,11 +24,11 @@ export default async function GroupsPage() {
 
   const { data: memberships } = await supabase
     .from("group_members")
-    .select("groups(id, name)")
+    .select("groups(id, name, photo_url)")
     .eq("user_id", user.id);
 
   const groups = (memberships ?? []).map(
-    (m) => m.groups as unknown as { id: string; name: string }
+    (m) => m.groups as unknown as { id: string; name: string; photo_url: string | null }
   );
 
   const handleSignOut = async () => {
@@ -82,9 +82,17 @@ export default async function GroupsPage() {
                 href={`/groups/${g.id}`}
                 className="flex items-center gap-4 bg-surface rounded-2xl shadow-card px-5 py-4 hover:shadow-card-hover transition-shadow"
               >
-                <div className="w-10 h-10 rounded-full bg-border flex items-center justify-center shrink-0">
-                  <Users size={18} className="text-muted" />
-                </div>
+                {g.photo_url ? (
+                  <img
+                    src={g.photo_url}
+                    alt={g.name}
+                    className="w-10 h-10 rounded-full object-cover shrink-0"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-border flex items-center justify-center shrink-0">
+                    <Users size={18} className="text-muted" />
+                  </div>
+                )}
                 <span className="font-medium text-text flex-1">{g.name}</span>
                 <ChevronRight size={18} className="text-muted" />
               </Link>

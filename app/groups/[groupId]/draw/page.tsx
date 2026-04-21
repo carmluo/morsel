@@ -156,7 +156,7 @@ export default function DrawPage() {
 
         {/* Photo controls row */}
         <div className="flex items-center gap-2 flex-wrap">
-          <PhotoInput canvasRef={canvas.canvasRef} onLoad={handlePhotoLoad} />
+          <PhotoInput canvasRef={canvas.canvasRef} onLoad={handlePhotoLoad} hasPhoto={!!photoUrl} />
           {photoUrl && (
             <>
               <button

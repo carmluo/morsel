@@ -33,7 +33,7 @@ export default async function FeedPage({
   // Fetch group info
   const { data: group } = await supabase
     .from("groups")
-    .select("id, name, admin_id")
+    .select("id, name, admin_id, photo_url")
     .eq("id", groupId)
     .single();
 
@@ -149,11 +149,11 @@ export default async function FeedPage({
   // Fetch all user's groups for switcher
   const { data: userGroupRows } = await supabase
     .from("group_members")
-    .select("groups(id, name)")
+    .select("groups(id, name, photo_url)")
     .eq("user_id", user.id);
 
   const userGroups = (userGroupRows ?? []).map(
-    (m) => m.groups as unknown as { id: string; name: string }
+    (m) => m.groups as unknown as { id: string; name: string; photo_url: string | null }
   );
 
   return (

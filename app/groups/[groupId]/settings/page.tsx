@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar";
 import InviteCard from "@/components/groups/InviteCard";
+import GroupPhotoEditor from "@/components/groups/GroupPhotoEditor";
+import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 
 export const revalidate = 0;
 
@@ -21,7 +23,7 @@ export default async function SettingsPage({
 
   const { data: group } = await supabase
     .from("groups")
-    .select("id, name, invite_code, admin_id")
+    .select("id, name, invite_code, admin_id, photo_url")
     .eq("id", groupId)
     .single();
 
@@ -45,7 +47,7 @@ export default async function SettingsPage({
   };
 
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="min-h-screen bg-bg pb-24">
       <header className="sticky top-0 z-10 bg-bg/90 backdrop-blur-sm border-b border-border px-4 py-3 flex items-center gap-3">
         <Link
           href={`/groups/${groupId}`}
@@ -57,11 +59,21 @@ export default async function SettingsPage({
       </header>
 
       <main className="max-w-sm mx-auto px-4 py-6 flex flex-col gap-6">
+        {/* Group photo */}
+        <section className="bg-surface rounded-2xl shadow-card p-5">
+          <GroupPhotoEditor
+            groupId={groupId}
+            currentPhotoUrl={group.photo_url ?? null}
+          />
+        </section>
+
+        {/* Invite */}
         <section>
           <h2 className="font-display text-lg text-text mb-3">{group.name}</h2>
           <InviteCard groupId={groupId} inviteCode={group.invite_code} />
         </section>
 
+        {/* Members */}
         <section>
           <h2 className="font-display text-lg text-text mb-3">
             Members ({members?.length ?? 0})
@@ -92,9 +104,7 @@ export default async function SettingsPage({
                     </span>
                   )}
                   {!isAdmin && (
-                    <form
-                      action={handleRemoveMember.bind(null, m.user_id)}
-                    >
+                    <form action={handleRemoveMember.bind(null, m.user_id)}>
                       <button className="text-xs text-red-500 hover:text-red-700 transition-colors min-h-[36px] px-2">
                         Remove
                       </button>
@@ -104,6 +114,11 @@ export default async function SettingsPage({
               );
             })}
           </div>
+        </section>
+
+        {/* Danger zone */}
+        <section>
+          <DeleteGroupButton groupId={groupId} />
         </section>
       </main>
     </div>
