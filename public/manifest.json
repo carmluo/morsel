@@ -1,0 +1,23 @@
+{
+  "name": "Morsel",
+  "short_name": "Morsel",
+  "description": "Draw what you eat. Build a story together.",
+  "start_url": "/groups",
+  "display": "standalone",
+  "background_color": "#FFFDF5",
+  "theme_color": "#FFFDF5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-icon",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
