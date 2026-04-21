@@ -103,7 +103,7 @@ export default function OnboardingPage() {
           />
 
           <Button type="submit" size="lg" loading={loading} className="w-full">
-            Let's eat 🍽
+            Let's eat
           </Button>
         </form>
       </div>

@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,11 +16,15 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
     setLoading(true);
     setError("");
 
     const supabase = createClient();
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
     });
@@ -31,14 +35,19 @@ export default function LoginPage() {
       return;
     }
 
-    // Check if profile exists
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("username")
-      .eq("id", data.user.id)
-      .single();
+    // Sign in immediately after signup (no email confirmation needed if disabled in Supabase)
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
 
-    router.push(profile ? "/groups" : "/onboarding");
+    if (signInError || !signInData.user) {
+      // Supabase may require email confirmation — send them to a confirmation notice
+      router.push("/auth/confirm");
+      return;
+    }
+
+    router.push("/onboarding");
   };
 
   return (
@@ -54,7 +63,7 @@ export default function LoginPage() {
           className="bg-surface rounded-2xl shadow-card p-8 flex flex-col gap-5"
         >
           <div>
-            <h2 className="font-display text-2xl text-text mb-1">Sign in</h2>
+            <h2 className="font-display text-2xl text-text mb-1">Create account</h2>
           </div>
 
           <Input
@@ -71,22 +80,22 @@ export default function LoginPage() {
           <Input
             type="password"
             label="Password"
-            placeholder="••••••••"
+            placeholder="At least 6 characters"
             value={password}
             onChange={(e) => { setPassword(e.target.value); setError(""); }}
-            autoComplete="current-password"
+            autoComplete="new-password"
             error={error}
             required
           />
 
           <Button type="submit" size="lg" loading={loading} className="w-full">
-            Sign in
+            Create account
           </Button>
 
           <p className="text-center text-sm text-muted">
-            No account?{" "}
-            <Link href="/auth/signup" className="text-accent hover:text-accent-hover transition-colors">
-              Sign up
+            Already have an account?{" "}
+            <Link href="/auth/login" className="text-accent hover:text-accent-hover transition-colors">
+              Sign in
             </Link>
           </p>
         </form>
