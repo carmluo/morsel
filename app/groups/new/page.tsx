@@ -31,26 +31,30 @@ export default function NewGroupPage() {
     setLoading(true);
     setError("");
 
-    let photoUrl: string | null = null;
+    try {
+      let photoUrl: string | null = null;
 
-    if (photoFile) {
-      const formData = new FormData();
-      formData.append("photo", photoFile);
-      const upload = await uploadGroupPhotoAction(formData);
-      if (upload.error) {
-        setError(upload.error);
-        setLoading(false);
-        return;
+      if (photoFile) {
+        const formData = new FormData();
+        formData.append("photo", photoFile);
+        const upload = await uploadGroupPhotoAction(formData);
+        if (upload.error || !upload.url) {
+          setError(upload.error ?? "Photo upload failed.");
+          return;
+        }
+        photoUrl = upload.url;
       }
-      photoUrl = upload.url ?? null;
-    }
 
-    const result = await createGroupAction(name.trim(), photoUrl);
-    if (result.error) {
-      setError(result.error);
+      const result = await createGroupAction(name.trim(), photoUrl);
+      if (result.error) {
+        setError(result.error);
+      } else {
+        router.push(`/groups/${result.groupId}`);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
       setLoading(false);
-    } else {
-      router.push(`/groups/${result.groupId}`);
     }
   };
 

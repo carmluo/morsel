@@ -15,8 +15,9 @@ export async function uploadGroupPhotoAction(
   if (!file) return { error: "No file provided." };
 
   const admin = createAdminClient();
-  const ext = file.name.split(".").pop() ?? "jpg";
-  const filename = `groups/${user.id}/${Date.now()}.${ext}`;
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const safeExt = ["jpg", "jpeg", "png", "webp", "heic"].includes(ext) ? ext : "jpg";
+  const filename = `group-photos/${user.id}/${Date.now()}.${safeExt}`;
 
   const { error: uploadError } = await admin.storage
     .from("drawings")
