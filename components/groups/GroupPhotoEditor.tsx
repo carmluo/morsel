@@ -3,6 +3,7 @@
 import { useState, useRef, useTransition } from "react";
 import { ImageIcon, Users } from "lucide-react";
 import { uploadGroupPhotoAction, updateGroupPhotoAction } from "@/app/groups/group-actions";
+import { compressImage } from "@/lib/utils";
 
 interface GroupPhotoEditorProps {
   groupId: string;
@@ -22,8 +23,9 @@ export default function GroupPhotoEditor({ groupId, currentPhotoUrl }: GroupPhot
 
     startTransition(async () => {
       setError("");
+      const compressed = await compressImage(file, 800);
       const formData = new FormData();
-      formData.append("photo", file);
+      formData.append("photo", compressed, "photo.webp");
       const upload = await uploadGroupPhotoAction(formData);
       if (upload.error || !upload.url) {
         setError(upload.error ?? "Upload failed.");

@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { createGroupAction } from "./actions";
 import { uploadGroupPhotoAction } from "../group-actions";
+import { compressImage } from "@/lib/utils";
 
 export default function NewGroupPage() {
   const router = useRouter();
@@ -35,8 +36,9 @@ export default function NewGroupPage() {
       let photoUrl: string | null = null;
 
       if (photoFile) {
+        const compressed = await compressImage(photoFile, 800);
         const formData = new FormData();
-        formData.append("photo", photoFile);
+        formData.append("photo", compressed, "photo.webp");
         const upload = await uploadGroupPhotoAction(formData);
         if (upload.error || !upload.url) {
           setError(upload.error ?? "Photo upload failed.");
