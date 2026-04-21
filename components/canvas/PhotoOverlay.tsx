@@ -1,34 +1,8 @@
 "use client";
 
 import { useRef, useCallback } from "react";
+import { Camera, ImageIcon } from "lucide-react";
 
-interface UsePhotoOverlayReturn {
-  photoUrl: string | null;
-  photoCanvas: HTMLCanvasElement | null;
-  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  clearPhoto: () => void;
-}
-
-export function usePhotoOverlay(
-  canvasRef: React.RefObject<HTMLCanvasElement | null>
-): UsePhotoOverlayReturn {
-  const photoCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const photoUrlRef = useRef<string | null>(null);
-  const settersRef = useRef<{
-    setPhotoUrl: ((url: string | null) => void) | null;
-    setPhotoCanvas: ((c: HTMLCanvasElement | null) => void) | null;
-  }>({ setPhotoUrl: null, setPhotoCanvas: null });
-
-  // This hook is used alongside useState in the parent
-  return {
-    photoUrl: photoUrlRef.current,
-    photoCanvas: photoCanvasRef.current,
-    handleFileChange: () => {},
-    clearPhoto: () => {},
-  };
-}
-
-// Simpler: just a file input component that calls back with url + canvas
 interface PhotoInputProps {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   onLoad: (url: string, photoCanvas: HTMLCanvasElement) => void;
@@ -36,6 +10,8 @@ interface PhotoInputProps {
 
 export default function PhotoInput({ canvasRef, onLoad }: PhotoInputProps) {
   const photoCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const libraryInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,22 +45,47 @@ export default function PhotoInput({ canvasRef, onLoad }: PhotoInputProps) {
         img.src = url;
       };
       reader.readAsDataURL(file);
-      // Reset so same file can be re-selected
       e.target.value = "";
     },
     [canvasRef, onLoad]
   );
 
   return (
-    <label className="inline-flex items-center gap-2 cursor-pointer bg-surface border border-border text-text text-sm font-medium px-4 py-2 rounded-xl hover:border-muted transition-colors min-h-[40px]">
-      <span>Upload photo</span>
+    <div className="flex gap-2">
+      {/* Take photo — opens camera directly */}
+      <button
+        type="button"
+        onClick={() => cameraInputRef.current?.click()}
+        className="inline-flex items-center gap-2 bg-surface border border-border text-text text-sm font-medium px-4 py-2 rounded-xl hover:border-muted transition-colors min-h-[40px]"
+      >
+        <Camera size={16} />
+        <span>Camera</span>
+      </button>
       <input
+        ref={cameraInputRef}
         type="file"
         accept="image/*"
         capture="environment"
         className="sr-only"
         onChange={handleFileChange}
       />
-    </label>
+
+      {/* Upload from library */}
+      <button
+        type="button"
+        onClick={() => libraryInputRef.current?.click()}
+        className="inline-flex items-center gap-2 bg-surface border border-border text-text text-sm font-medium px-4 py-2 rounded-xl hover:border-muted transition-colors min-h-[40px]"
+      >
+        <ImageIcon size={16} />
+        <span>Upload</span>
+      </button>
+      <input
+        ref={libraryInputRef}
+        type="file"
+        accept="image/*"
+        className="sr-only"
+        onChange={handleFileChange}
+      />
+    </div>
   );
 }
